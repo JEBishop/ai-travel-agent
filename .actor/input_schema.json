@@ -17,5 +17,5 @@
             "editor": "textfield"
         }
     },
-    "required": ["realEstateRequest"]
+    "required": ["travelRequest"]
 }
