@@ -3,6 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, MessageContentComplex } from "@langchain/core/messages";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import type { Input } from './types.js'
+import { responseSchema } from './types.js'
 import { agentTools } from './tools.js'
 
 await Actor.init();
@@ -32,7 +33,8 @@ const agentModel = new ChatOpenAI({
 
 const agent = createReactAgent({
   llm: agentModel,
-  tools: agentTools
+  tools: agentTools,
+  responseFormat: responseSchema,
 });
 
 try {
