@@ -32,6 +32,6 @@ export const NewsStoryZod = z.object({
 })
 
 export interface Input {
-  realEstateRequest: string;
+  travelRequest: string;
   OPENAI_API_KEY: string;
 }

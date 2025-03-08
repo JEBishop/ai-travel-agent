@@ -12,19 +12,19 @@ if (!input) throw new Error('No input provided.');
 
 await Actor.charge({ eventName: 'init' });
 
-const { OPENAI_API_KEY, realEstateRequest } = input;
+const { OPENAI_API_KEY, travelRequest } = input;
 
 let llmAPIKey;
 if(!OPENAI_API_KEY || OPENAI_API_KEY.length == 0) {
   llmAPIKey = process.env.OPENAI_API_KEY;
-  await Actor.charge({ eventName: 'llm-input', count: realEstateRequest.length });
+  await Actor.charge({ eventName: 'llm-input', count: travelRequest.length });
 } else {
   llmAPIKey = OPENAI_API_KEY;
 }
 
 const agentModel = new ChatOpenAI({ 
   apiKey: llmAPIKey,
-  modelName: "gpt-4o",  
+  modelName: "gpt-4o-mini",  
 }).bind({
   response_format: { type: "json_object" },
   tools: agentTools
@@ -40,43 +40,70 @@ try {
     {
       messages: [
         new HumanMessage(`
-          You are an expert real estate agent. You are tasked with helping a client find a new place to live.
+          You are an expert travel agent. You are tasked with helping a client sort out their travel plans.
+          The current date is ${(new Date()).toLocaleDateString()}
 
-          STEP 1: Determine the 1-3 zip codes to search within from the user's request: ${realEstateRequest}.
-          - The user may provide a city, state, or a zip code.
-          - If a zip code is provided, use it directly.
-          - If only a city and state are provided, determine the zip codes for the city based on your general knowledge.
-          - Store this as 'zipCodes' for the next step.
+          STEP 1: Understand User Requirements:
 
-          STEP 2: Fetch Listings
-          - Use the extracted 'zipCodes' from Step 1 to craft an object with this structure:
-          {
-            "forRent": boolean,
-            "forSaleByAgent": boolean,
-            "forSaleByOwner": boolean,
-            "priceMax": number,
-            "sold": boolean,
-            "zipCodes": ["zipCode1", "zipCode2", ...]
-          }
-          - The boolean and number values should be determined from the user's ${realEstateRequest}.
-          - Pass the crafted object to the 'fetch_listings' tool.
-          - Store the results for filtering in Step 3.
+          - Extract key details from the user’s input (${travelRequest}), including:
+              - Accommodation preferences (e.g., location, number of rooms, ratings, price range, amenities).
+              - Flight details (e.g., departure and destination cities, dates, airlines, budget, preferred stops).
+              - !IMPORTANT! - If a user does not explicitly mention a city, use your general knowledge to deduce a popular city that they would be looking for.
+              - Example: If a user says Northern Italy, they probably mean Milan.
+              - If a user does not mention where their departure city, assume New York
 
-          STEP 3: Filter Results Based on User Requirements
-          - Parse the user's ${realEstateRequest} for specific requirements like:
-            * Number of bedrooms/bathrooms
-            * Square footage
-            * Property type (house, apartment, condo)
-            * Amenities (pool, garage, etc.)
-            * Distance to locations (schools, work, etc.)
-          - Filter the listings from Step 2 to match at least one of these requirements.
-          - Add a field "match_reason" to each listing where you will describe why the listing was included
-          - If no specific filters are mentioned, return all listings from Step 2.
-          - If no listings meet the specified filters, return the first 5 listings Step 2.
+          STEP 2: Gather Travel Data:
+              !IMPORTANT! -> All data sent to tools should be passed as a **JSON object**.
+              !IMPORTANT! -> You MUST call each of these three tools separately with the data in each request:
+              FIRST: Retrieve flight options using the fetch_flights tool:
+                - fetch_flights → Pass a properly formatted JSON object. Do not pass a plain text string.
+                  \`\`\`json
+                  {
+                    "departureCity": "string",
+                    "arrivalCity": "string",
+                    "departDate": "string (format -> 'YYYY-MM-DD')"
+                    "arrivalDate": "string (format -> 'YYYY-MM-DD')"
+                  }
+                  \`\`\`
+              SECOND: Retrieve accommodation options using the following tools (fetch_booking_listings and fetch_airbnb_listings):
+                - fetch_booking_listings → Pass a properly formatted JSON object. Do not pass a plain text string.
+                  \`\`\`json
+                  {
+                    "cityName": "string"
+                    "numberOfRooms", "number"
+                    "numberOfAdults", "number"
+                    "numberOfChildren": "number"
+                    "minMaxPrice": "string (format -> min-max)", 
+                    "starsCountFilter": "string (enum -> "any", "1", "2", "3", "4", "5", "unrated")",
+                  }
+                  \`\`\`
+                - fetch_airbnb_listings → Pass a properly formatted JSON object. Do not pass a plain text string.
+                  \`\`\`json
+                  {
+                    "cityName": "string",
+                    "checkIn": "string (format -> 'YYYY-MM-DD')",
+                    "checkOut": "string (format -> 'YYYY-MM-DD')",
+                    "numberOfRooms": "number",
+                    "numberOfAdults": "number",
+                    "numberOfChildren": "number",
+                    "priceMax": "number",
+                    "minBeds": "number",
+                    "minBedrooms": "number",
+                    "minBathrooms": "number",
+                    "numberOfPets": "number"
+                  }
+                  \`\`\`
 
-          STEP 4: Return Filtered Results as JSON
-          - Format the filtered listings as a JSON array of objects.
-          - Return this JSON without additional commentary.
+
+          STEP 3: Filter and Rank Results:
+              Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
+
+          STEP 4: Generate and Format Output:
+              - Present a JSON structured array of the best-matching accommodations and flights.
+              - Include key details such as:
+                  For accommodations: property name, location, rating, price per night, and booking link.
+                  For flights: airline, departure/arrival times, duration, layovers, and booking link.
+              - Ensure clarity by formatting results in a table or list, making them easy to compare.
         `)
       ]
     }, {
