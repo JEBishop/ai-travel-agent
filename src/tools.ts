@@ -53,32 +53,26 @@ const FetchAirbnbListingsTool = tool(
     log.info('in fetch_airbnb_listings')
     log.info(JSON.stringify(input));
     try {
-        if (typeof input === 'string') {
-          try { 
-            input = JSON.parse(input);
-          } catch (e) { throw new Error('Input string is not valid JSON'); }
-        }
-
-        const run = await client.actor('GsNzxEKzE2vQ5d9HN').call({
-          locationQueries: [
-            input?.cityName ?? "New York"
-          ],
-          locale: "en-US",
-          currency: "USD",
-          checkIn: input?.checkIn ?? new Date().toISOString().split('T')[0],
-          checkOut: input?.checkOut ?? new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
-          numberOfAdults: input?.numberOfAdults ?? 1,
-          numberOfChildren: input?.numberOfChildren ?? 0,
-          priceMax: input?.priceMax ?? 300,
-          minBeds: input?.minBeds ?? 1,
-          minBedrooms: input?.minBedrooms ?? 1,
-          minBathrooms: input?.minBathrooms ?? 1,
-          numberOfPets: input?.numberOfPets ?? 0,
-        }, { maxItems: 10, memory: 2048 });
-        const { items: listings } = await client.dataset(run.defaultDatasetId).listItems();
-        
-        log.info(`Found ${listings.length} Airbnb listings.`);
-        return JSON.stringify({ listings: listings.slice(0,5) });
+      const run = await client.actor('GsNzxEKzE2vQ5d9HN').call({
+        locationQueries: [
+          input?.cityName ?? "New York"
+        ],
+        locale: "en-US",
+        currency: "USD",
+        checkIn: input?.checkIn ?? new Date().toISOString().split('T')[0],
+        checkOut: input?.checkOut ?? new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+        numberOfAdults: input?.numberOfAdults ?? 1,
+        numberOfChildren: input?.numberOfChildren ?? 0,
+        priceMax: input?.priceMax ?? 300,
+        minBeds: input?.minBeds ?? 1,
+        minBedrooms: input?.minBedrooms ?? 1,
+        minBathrooms: input?.minBathrooms ?? 1,
+        numberOfPets: input?.numberOfPets ?? 0,
+      }, { maxItems: 10, memory: 2048 });
+      const { items: listings } = await client.dataset(run.defaultDatasetId).listItems();
+      
+      log.info(`Found ${listings.length} Airbnb listings.`);
+      return JSON.stringify({ listings: listings.slice(0,5) });
     } catch (err: any) {
         log.error('Airbnb error: ' + err.message);
         return JSON.stringify([]);

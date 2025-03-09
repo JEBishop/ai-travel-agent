@@ -50,8 +50,7 @@ try {
           The current date is ${(new Date()).toLocaleDateString()}
 
           STEP 1: Understand User Requirements:
-
-          - Extract key details from the user’s input (${travelRequest}), including:
+            - Extract key details from the user’s input (${travelRequest}), including:
               - Accommodation preferences (e.g., location, number of rooms, ratings, price range, amenities).
               - Flight details (e.g., departure and destination cities, dates, airlines, budget, preferred stops).
               - !IMPORTANT! - If a user does not explicitly mention a city, use your general knowledge to deduce a popular city that they would be looking for.
@@ -73,7 +72,7 @@ try {
               - Ensure clarity by formatting results in a table or list, making them easy to compare.
         `)]
       }, {
-      recursionLimit: 10
+        recursionLimit: 10
       });
       return modelResponse.structuredResponse as Output;
     }
