@@ -58,19 +58,18 @@ try {
               - If a user does not mention where their departure city, assume New York
 
           STEP 2: Gather Travel Data:
-              FIRST: Retrieve flight options using the fetch_flights tool.
-              SECOND: Retrieve accommodation options using fetch_booking_listings fetch_airbnb_listings
+            - FIRST: Retrieve flight options using the fetch_flights tool.
+            - SECOND: Retrieve accommodation options using fetch_booking_listings fetch_airbnb_listings
 
           STEP 3: Filter and Rank Results:
-              Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
+            - Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
 
           STEP 4: Generate and Format Output:
-              - Present a JSON structured array of the best-matching accommodations and flights.
-              - Include key details such as:
-                  For accommodations: property name, location, rating, price per night, and booking link.
-                  For flights: airline, departure/arrival times, duration, layovers, and booking link.
-              - Ensure clarity by formatting results in a table or list, making them easy to compare.
-        `)]
+            - Present a JSON structured array of the best-matching accommodations and flights.
+            - Include key details such as:
+              - For accommodations: property name, location, rating, price per night, and booking link.
+              - For flights: airline, departure/arrival times, duration, layovers, and booking link.
+      `)]
       }, {
         recursionLimit: 10
       });
