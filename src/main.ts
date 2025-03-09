@@ -1,10 +1,13 @@
 import { Actor } from 'apify';
+import log from '@apify/log';
 import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage, MessageContentComplex } from "@langchain/core/messages";
+import { HumanMessage } from "@langchain/core/messages";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import type { Input } from './types.js'
+import type { Input, Output } from './types.js'
 import { responseSchema } from './types.js'
 import { agentTools } from './tools.js'
+import { setContextVariable } from "@langchain/core/context";
+import { RunnableLambda } from "@langchain/core/runnables";
 
 await Actor.init();
 
@@ -34,14 +37,15 @@ const agentModel = new ChatOpenAI({
 const agent = createReactAgent({
   llm: agentModel,
   tools: agentTools,
-  responseFormat: responseSchema,
+  responseFormat: responseSchema
 });
 
 try {
-  const finalState = await agent.invoke(
-    {
-      messages: [
-        new HumanMessage(`
+  const handleRunTimeRequestRunnable = RunnableLambda.from(
+    async ({ travelRequest: travelRequest }) => {
+      setContextVariable("travelRequest", travelRequest);
+      const modelResponse = await agent.invoke({
+        messages: [new HumanMessage(`
           You are an expert travel agent. You are tasked with helping a client sort out their travel plans.
           The current date is ${(new Date()).toLocaleDateString()}
 
@@ -55,47 +59,8 @@ try {
               - If a user does not mention where their departure city, assume New York
 
           STEP 2: Gather Travel Data:
-              !IMPORTANT! -> All data sent to tools should be passed as a **JSON object**.
-              !IMPORTANT! -> You MUST call each of these three tools separately with the data in each request:
-              FIRST: Retrieve flight options using the fetch_flights tool:
-                - fetch_flights → Pass a properly formatted JSON object. Do not pass a plain text string.
-                  \`\`\`json
-                  {
-                    "departureCity": "string",
-                    "arrivalCity": "string",
-                    "departDate": "string (format -> 'YYYY-MM-DD')"
-                    "arrivalDate": "string (format -> 'YYYY-MM-DD')"
-                  }
-                  \`\`\`
-              SECOND: Retrieve accommodation options using the following tools (fetch_booking_listings and fetch_airbnb_listings):
-                - fetch_booking_listings → Pass a properly formatted JSON object. Do not pass a plain text string.
-                  \`\`\`json
-                  {
-                    "cityName": "string"
-                    "numberOfRooms", "number"
-                    "numberOfAdults", "number"
-                    "numberOfChildren": "number"
-                    "minMaxPrice": "string (format -> min-max)", 
-                    "starsCountFilter": "string (enum -> "any", "1", "2", "3", "4", "5", "unrated")",
-                  }
-                  \`\`\`
-                - fetch_airbnb_listings → Pass a properly formatted JSON object. Do not pass a plain text string.
-                  \`\`\`json
-                  {
-                    "cityName": "string",
-                    "checkIn": "string (format -> 'YYYY-MM-DD')",
-                    "checkOut": "string (format -> 'YYYY-MM-DD')",
-                    "numberOfRooms": "number",
-                    "numberOfAdults": "number",
-                    "numberOfChildren": "number",
-                    "priceMax": "number",
-                    "minBeds": "number",
-                    "minBedrooms": "number",
-                    "minBathrooms": "number",
-                    "numberOfPets": "number"
-                  }
-                  \`\`\`
-
+              FIRST: Retrieve flight options using the fetch_flights tool.
+              SECOND: Retrieve accommodation options using fetch_booking_listings fetch_airbnb_listings
 
           STEP 3: Filter and Rank Results:
               Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
@@ -106,48 +71,23 @@ try {
                   For accommodations: property name, location, rating, price per night, and booking link.
                   For flights: airline, departure/arrival times, duration, layovers, and booking link.
               - Ensure clarity by formatting results in a table or list, making them easy to compare.
-        `)
-      ]
-    }, {
+        `)]
+      }, {
       recursionLimit: 10
+      });
+      return modelResponse.structuredResponse as Output;
     }
   );
 
-  var content = finalState.messages[finalState.messages.length - 1].content;
-  /**
-   * Some GPT models will wrap the output array in an object, despite response formatting and strict prompting.
-   * Ex: { "results": [<< our data array >>] }
-   * Need to handle these edge cases gracefully in order to guarantee consistent output for users.
-   */
-  if (typeof content === 'string') {
-    try {
-      const parsedContent = JSON.parse(content) as MessageContentComplex[];
-      if (typeof parsedContent === 'object' && parsedContent !== null && !Array.isArray(parsedContent)) {
-        const possibleKeys = ['input', 'output', 'result', 'results', 'response', 'listings', 'homes', 'rentals', 'houses', 'filteredListings', 'filteredHomes', 'filteredRentals', 'filteredHouses'];
-        
-        const matchingKey = possibleKeys.find(key => key in parsedContent as any);
-        
-        if (matchingKey) {
-          content = (parsedContent as any)[matchingKey];
-        } else {
-          content = parsedContent;
-        }
-      } else {
-        content = parsedContent; 
-      }
-    } catch (error) {
-      console.error("Failed to parse JSON:", error);
-    }
-  }
-  const output = Array.isArray(content) ? content: [content];
+  const output: Output = await handleRunTimeRequestRunnable.invoke({ travelRequest: travelRequest });
 
-  console.log(output)
+  log.info(JSON.stringify(output));
 
-  await Actor.charge({ eventName: 'listings-output', count: output.length });
+  await Actor.charge({ eventName: 'listings-output', count: (output.accomodations.length + output.flights.length) });
 
   await Actor.pushData(output);
-} catch (e: any) {
-  console.log(e);
-  await Actor.pushData({ error: e.message });
+} catch (err: any) {
+  log.error(err.message);
+  await Actor.pushData({ error: err.message });
 }
 await Actor.exit();

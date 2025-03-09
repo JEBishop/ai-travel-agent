@@ -59,6 +59,11 @@ export const responseSchema = {
   required: []
 };
 
+export interface Output {
+  accomodations: any[];
+  flights: any[];
+};
+
 export interface Input {
   travelRequest: string;
   OPENAI_API_KEY: string;

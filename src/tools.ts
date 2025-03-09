@@ -1,6 +1,7 @@
-import { Tool, tool } from '@langchain/core/tools';
+import { tool } from '@langchain/core/tools';
 import { ApifyClient } from 'apify-client';
 import { z } from 'zod';
+import log from '@apify/log';
 
 const client = new ApifyClient({
     token: process.env.APIFY_TOKEN,
@@ -8,8 +9,8 @@ const client = new ApifyClient({
 
 const FetchBookingListingsTool = tool(
   async (input) => {
-    console.log('in fetch_booking_listings');
-    console.log(input);
+    log.info('in fetch_booking_listings');
+    log.info(JSON.stringify(input));
     
     try {      
       const run = await client.actor('oeiQgfg5fsmIJB7Cn').call({
@@ -26,10 +27,10 @@ const FetchBookingListingsTool = tool(
       }, { memory: 2048 });
       
       const { items: listings } = await client.dataset(run.defaultDatasetId).listItems();
-      console.log(`Found ${listings.length} Booking.com listings.`);
+      log.info(`Found ${listings.length} Booking.com listings.`);
       return JSON.stringify({ listings: listings.slice(0,5) });
     } catch (err) {
-      console.log('Booking.com error: ' + (err as Error).message);
+      log.error('Booking.com error: ' + (err as Error).message);
       return JSON.stringify([]);
     }
   }, 
@@ -49,8 +50,8 @@ const FetchBookingListingsTool = tool(
 
 const FetchAirbnbListingsTool = tool(
   async (input) => {
-    console.log('in fetch_airbnb_listings')
-    console.log(input)
+    log.info('in fetch_airbnb_listings')
+    log.info(JSON.stringify(input));
     try {
         if (typeof input === 'string') {
           try { 
@@ -76,10 +77,10 @@ const FetchAirbnbListingsTool = tool(
         }, { maxItems: 10, memory: 2048 });
         const { items: listings } = await client.dataset(run.defaultDatasetId).listItems();
         
-        console.log(`Found ${listings.length} Airbnb listings.`);
+        log.info(`Found ${listings.length} Airbnb listings.`);
         return JSON.stringify({ listings: listings.slice(0,5) });
     } catch (err: any) {
-        console.log('Airbnb error: ' + err.message);
+        log.error('Airbnb error: ' + err.message);
         return JSON.stringify([]);
     }
   }, {
@@ -103,8 +104,8 @@ const FetchAirbnbListingsTool = tool(
 
 const FetchFlightsTool = tool(
   async (input) => {
-    console.log('in fetch_flights');
-    console.log(input);
+    log.info('in fetch_flights');
+    log.info(JSON.stringify(input));
     
     try {      
       const run = await client.actor('tiveIS4hgXOMtu3Hf').call({
@@ -116,10 +117,10 @@ const FetchFlightsTool = tool(
       }, { maxItems: 20, memory: 2048 });
       
       const { items: listings } = await client.dataset(run.defaultDatasetId).listItems();
-      console.log(`Found ${listings.length} flights.`);
+      log.info(`Found ${listings.length} flights.`);
       return JSON.stringify({ listings: listings.slice(0,5) });
     } catch (err) {
-      console.log('SkyScanner error: ' + (err as Error).message);
+      log.error('SkyScanner error: ' + (err as Error).message);
       return JSON.stringify([]);
     }
   }, 
