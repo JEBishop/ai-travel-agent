@@ -56,19 +56,23 @@ try {
               - !IMPORTANT! - If a user does not explicitly mention a city, use your general knowledge to deduce a popular city that they would be looking for.
               - Example: If a user says Northern Italy, they probably mean Milan.
               - If a user does not mention where their departure city, assume New York
+              - Search the web to determine the IATA airport codes for the departure and destination cities.
+
 
           STEP 2: Gather Travel Data:
             - FIRST: Retrieve flight options using the fetch_flights tool.
             - SECOND: Retrieve accommodation options using fetch_booking_listings fetch_airbnb_listings
+            - THIRD: Search the web for tourist attractions in the destination.
 
           STEP 3: Filter and Rank Results:
             - Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
 
           STEP 4: Generate and Format Output:
-            - Present a JSON structured array of the best-matching accommodations and flights.
+            - Present a JSON structured array of the best-matching accommodations, flights, and attractions.
             - Include key details such as:
               - For accommodations: property name, location, rating, price per night, and booking link.
               - For flights: airline, departure/arrival times, duration, layovers, and booking link.
+              - For attractions: title, link, description.
       `)]
       }, {
         recursionLimit: 10
@@ -81,7 +85,7 @@ try {
 
   log.info(JSON.stringify(output));
 
-  await Actor.charge({ eventName: 'listings-output', count: (output.accomodations.length + output.flights.length) });
+  await Actor.charge({ eventName: 'listings-output', count: (output?.accomodations?.length + output?.flights?.length + output?.attractions?.length) });
 
   await Actor.pushData(output);
 } catch (err: any) {
