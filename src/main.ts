@@ -84,17 +84,14 @@ try {
 
   const output: Output = await handleRunTimeRequestRunnable.invoke({ travelRequest: travelRequest });
 
-  const formattedOutput = {
-    html: formatHtml(output),
-    markdown: formatMarkdown(output),
-    json: output
-  }
+  await Actor.setValue('itinerary.html', formatHtml(output), { contentType: 'text/html' });
+  await Actor.setValue('itinerary.md', formatMarkdown(output), { contentType: 'text/markdown' });
 
   log.info(JSON.stringify(output));
 
   await Actor.charge({ eventName: 'listings-output', count: (output?.accomodations?.length + output?.flights?.length + output?.attractions?.length) });
 
-  await Actor.pushData(formattedOutput);
+  await Actor.pushData(output);
 } catch (err: any) {
   log.error(err.message);
   await Actor.pushData({ error: err.message });
