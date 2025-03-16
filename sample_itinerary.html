@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Itinerary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1,
+        h2 {
+            color: #222;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .flight-details,
+        .hotel-details {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .flight-details strong,
+        .hotel-details strong {
+            color: #444;
+        }
+
+        .hotel-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .hotel-container img {
+            width: 180px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .hotel-info {
+            flex: 1;
+        }
+
+        .link {
+            display: inline-block;
+            margin-top: 5px;
+            color: #0073e6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Itinerary</h1>
+    <h2>Flights</h2>
+    <div class='flight-details'>
+        <h3>Flight 1 - $811</h3>
+        <p>Toronto Pearson International (YYZ) → Milan Malpensa (MXP)</p>
+        <p>Departure: 9/1/2025, 5:00:00 PM</p>
+        <p>Arrival: 9/2/2025, 10:00:00 AM</p>
+        <p>Stops: 1</p>
+    </div>
+    <h2>Accommodations</h2>
+    <div class='hotel-details'>
+        <h3>PRESTIGE BOUTIQUE APARTHOTEL - Piazza Duomo View (apartment)</h3>
+        <p>Rating: 9.1 (792 reviews)</p>
+        <p>Central location with a view of Duomo Milan, free WiFi, air-conditioning, kitchenette, and terrace.</p> <a
+            class='link'
+            href='https://www.booking.com/hotel/it/prestige-boutique-homes-monumentale.html?selected_currency=USD&lang=en-us&group_adults=2&group_children=0&no_rooms=1&soz=1&lang_changed=1&explicit_lang_change=1&explicit_curr_change=1'
+            target='_blank'>More info</a>
+        <div class='hotel-container'> <img
+                src='https://cf.bstatic.com/xdata/images/hotel/max1024x768/536478469.jpg?k=dcea574f88d7dc5d6022e40f415d41c8fda8d1b4d6b77b7e47badc98788804d0&o='
+                alt='Hotel image'> </div>
+    </div>
+    <h2>Attractions</h2>
+    <div class='section'>
+        <h3>Duomo di Milano (Milan Cathedral)</h3>
+        <p>Gothic masterpiece and largest church in Italy, explore its intricate façade and rooftop.</p> <a class='link'
+            href='https://toxigon.com/top-tourist-attractions-in-milan?utm_source=openai' target='_blank'>More info</a>
+    </div>
+    <div class='section'>
+        <h3>Galleria Vittorio Emanuele II</h3>
+        <p>19th-century arcade with luxury boutiques and cafes.</p> <a class='link'
+            href='https://toxigon.com/top-tourist-attractions-in-milan?utm_source=openai' target='_blank'>More info</a>
+    </div>
+    <div class='section'>
+        <h3>Leonardo da Vinci's 'The Last Supper'</h3>
+        <p>Iconic mural housed in the refectory of Santa Maria delle Grazie.</p> <a class='link'
+            href='https://toxigon.com/top-tourist-attractions-in-milan?utm_source=openai' target='_blank'>More info</a>
+    </div>
+</body>
+</html>

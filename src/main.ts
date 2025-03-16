@@ -8,6 +8,7 @@ import { responseSchema } from './types.js'
 import { agentTools } from './tools.js'
 import { setContextVariable } from "@langchain/core/context";
 import { RunnableLambda } from "@langchain/core/runnables";
+import { formatHtml, formatMarkdown } from './utils.js';
 
 await Actor.init();
 
@@ -83,11 +84,17 @@ try {
 
   const output: Output = await handleRunTimeRequestRunnable.invoke({ travelRequest: travelRequest });
 
+  const formattedOutput = {
+    html: formatHtml(output),
+    markdown: formatMarkdown(output),
+    json: output
+  }
+
   log.info(JSON.stringify(output));
 
   await Actor.charge({ eventName: 'listings-output', count: (output?.accomodations?.length + output?.flights?.length + output?.attractions?.length) });
 
-  await Actor.pushData(output);
+  await Actor.pushData(formattedOutput);
 } catch (err: any) {
   log.error(err.message);
   await Actor.pushData({ error: err.message });

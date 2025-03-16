@@ -18,6 +18,7 @@ The **AI Travel Agent** is an Apify Actor that helps users plan their trips effo
 ```
 
 ## Sample Output
+![Sample HTML itinerary](sample_report.png)
 ```json
 [
     {
