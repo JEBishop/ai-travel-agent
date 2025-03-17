@@ -19,7 +19,7 @@ The **AI Travel Agent** is an Apify Actor that helps users plan their trips effo
 
 ## Sample Output
 ### Be sure to check the "Storage > Key-value store output tab for the HTML/MD report files.
-![Sample HTML itinerary](sample_report.png)
+![Sample HTML itinerary](https://raw.githubusercontent.com/JEBishop/ai-travel-agent/main/sample_report.png)
 ```json
 [
     {

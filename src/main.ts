@@ -56,7 +56,7 @@ try {
               - Flight details (e.g., departure and destination cities, dates, airlines, budget, preferred stops).
               - !IMPORTANT! - If a user does not explicitly mention a city, use your general knowledge to deduce a popular city that they would be looking for.
               - Example: If a user says Northern Italy, they probably mean Milan.
-              - If a user does not mention where their departure city, assume New York
+              - If a user does not mention their departure city, assume New York
               - Search the web to determine the IATA airport codes for the departure and destination cities.
 
           STEP 2: Gather Travel Data:
@@ -65,7 +65,7 @@ try {
             - Search the web for tourist attractions in the destination.
 
           STEP 3: Filter and Return Results:
-            - Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
+            - Apply user-defined filters from "${travelRequest}".
             - Present a JSON structured array of the best-matching accommodations, flights, and attractions.
       `)]
       }, {
