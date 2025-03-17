@@ -59,21 +59,14 @@ try {
               - If a user does not mention where their departure city, assume New York
               - Search the web to determine the IATA airport codes for the departure and destination cities.
 
-
           STEP 2: Gather Travel Data:
-            - FIRST: Retrieve flight options using the fetch_flights tool.
-            - SECOND: Retrieve accommodation options using fetch_booking_listings fetch_airbnb_listings
-            - THIRD: Search the web for tourist attractions in the destination.
+            - Retrieve flight options using the fetch_flights tool.
+            - Retrieve accommodation options using fetch_booking_listings or fetch_airbnb_listings
+            - Search the web for tourist attractions in the destination.
 
-          STEP 3: Filter and Rank Results:
+          STEP 3: Filter and Return Results:
             - Apply user-defined filters (e.g., minimum rating, price range, specific amenities).
-
-          STEP 4: Generate and Format Output:
             - Present a JSON structured array of the best-matching accommodations, flights, and attractions.
-            - Include key details such as:
-              - For accommodations: property name, location, rating, price per night, and booking link.
-              - For flights: airline, departure/arrival times, duration, layovers, and booking link.
-              - For attractions: title, link, description.
       `)]
       }, {
         recursionLimit: 10
